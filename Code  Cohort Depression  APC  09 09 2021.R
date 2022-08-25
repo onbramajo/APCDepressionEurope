@@ -9,7 +9,7 @@ library(splines)
 ##read the data already cleaned up for analysis (essentially we had cases by age and country merged in each wave, and we used to get the exposure that way, and used the average to
 # obtain the mid point of waves that were not even (say, the average of 2011 and 2013 waves, which were 4 and 5, should be 2012) 
 # route is the path that you will use: i.e. c/users/username/program_files, etc
-SHARE <- read_table2("C:route/shareexposure.xls")
+SHARE <- read_table2("C:route/ShareData20042016.txt")
 str(SHARE)
 SHARE$Prevalence <- SHARE$Depressed/(SHARE$Depressed+SHARE$Non_Depressed)
 SHARE$Exposure <- (SHARE$Depressed+SHARE$Non_Depressed)
@@ -130,12 +130,12 @@ ggplot(transform(SRATEALL, Country=factor(Country,
 #
 
 
-#Create Cohort for 2d plots, equaling 2013 and 2015 to ...
+#Create age groups for 2d exploratory plots (in the appendix) ...
 
 Age_Groups<-c("50-53","54-57","58-61","62-65","66-69","70-73","74-77",
               "78-81","82 and +")
 
-##reconvert as factors for better plotting 
+##reconvert as factors for better plotting and getting discrete variables
 SHARE$Year <- as.factor(SHARE$Period)
 SHARE$Birth_Cohort <- as.factor(SHARE$Cohort)
 
