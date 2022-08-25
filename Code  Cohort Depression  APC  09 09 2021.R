@@ -6,10 +6,10 @@ library(tidyverse)
 library(Epi)
 library(splines)
 
-##read the data already cleaned up for analysis (essentially we had cases by age and country, and we used to get the exposure that way, and used the average to
+##read the data already cleaned up for analysis (essentially we had cases by age and country merged in each wave, and we used to get the exposure that way, and used the average to
 # obtain the mid point of waves that were not even (say, the average of 2011 and 2013 waves, which were 4 and 5, should be 2012) 
 # route is the path that you will use: i.e. c/users/username/program_files, etc
-SHARE <- read_table2("C:route/share 2004 2016 Bramajo Merge2.txt")
+SHARE <- read_table2("C:route/shareexposure.xls")
 str(SHARE)
 SHARE$Prevalence <- SHARE$Depressed/(SHARE$Depressed+SHARE$Non_Depressed)
 SHARE$Exposure <- (SHARE$Depressed+SHARE$Non_Depressed)
