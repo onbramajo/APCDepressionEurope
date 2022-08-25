@@ -1,10 +1,15 @@
+##read the libraries that we will need
+
 rm(list=ls())
 library(readr)
 library(tidyverse)
 library(Epi)
 library(splines)
 
-SHARE <- read_table2("C:/Users/obramajo/Desktop/Tesis Bramajo/SHARE DEPRESSION/share 2004 2016 Bramajo Merge2.txt")
+##read the data already cleaned up for analysis (essentially we had cases by age and country, and we used to get the exposure that way, and used the average to
+# obtain the mid point of waves that were not even (say, the average of 2011 and 2013 waves, which were 4 and 5, should be 2012) 
+# route is the path that you will use: i.e. c/users/username/program_files, etc
+SHARE <- read_table2("C:route/share 2004 2016 Bramajo Merge2.txt")
 str(SHARE)
 SHARE$Prevalence <- SHARE$Depressed/(SHARE$Depressed+SHARE$Non_Depressed)
 SHARE$Exposure <- (SHARE$Depressed+SHARE$Non_Depressed)
@@ -16,12 +21,10 @@ SHARE$Depressed<-as.integer(SHARE$Depressed)
 SHARE$Exposure<-round(SHARE$Exposure,digits=0)
 SHARE$Exposure<-as.integer(SHARE$Exposure)
 
-
+# checking for missing data (APC analysis does not work if we have a value equal to 0)  
 which(is.na(SHARE$Prevalence))
 which(is.na(SHARE$Depressed))
 which(is.na(SHARE$Exposure))
-
-
 
 ## Obtain proportion males/females
 Maleexposure<- SHARE  %>%
@@ -50,8 +53,7 @@ sd(Malepercentage)
 mean(SHARE$Prevalence)
 sd(SHARE$Prevalence)
 sum(SHARE$Exposure)
-#fix(SHARE2004)
-##Fix standard population. 
+
 
 ###Group into Macro Regions For figure 1 
 
@@ -59,12 +61,7 @@ SHARE$Region [SHARE$Country=="Denmark" | SHARE$Country=="Sweden"| SHARE$Country=
 SHARE$Region [SHARE$Country=="Italy" | SHARE$Country=="Spain"| SHARE$Country=="France"] <- "South"
 
 
-## Standard: Structure of Overall Population of 6 countries in 2004
-
-
-
-
-
+## Figure 1 : inspecting the prevalence trends at the beginning by region 
 ### 
 Age2004 <- SHARE %>% filter(Period=="2004")
 
@@ -81,9 +78,7 @@ ggplot(Age2004, aes(x=Age,y=Depressed/Exposure*100, color=Region))+
   scale_colour_discrete("Region")+
   facet_wrap(~Sex)
 
-
-
-
+Standard: Structure of Overall Population of 6 countries in 2004 (which was the reference used for standardization)
 ##Obtain Standardized Rates
 
 StructureVector<- SHARE %>% filter(Period=="2004") %>%
@@ -116,7 +111,7 @@ SRATEALL <- SRATEALL  %>%
 ##plot age standardized rates for population >50
 
 ### 
-#title="Figure 1: Age-Standardized Depressed Incidence Rates in 2004-2017"
+#title="Figure 2: Age-Standardized Depressed Incidence Rates in 2004-2017"
 
 
 ggplot(transform(SRATEALL, Country=factor(Country,
@@ -135,7 +130,7 @@ ggplot(transform(SRATEALL, Country=factor(Country,
 #
 
 
-#Create Cohort for 2d plots, equaling 2013 and 2015...
+#Create Cohort for 2d plots, equaling 2013 and 2015 to ...
 
 Age_Groups<-c("50-53","54-57","58-61","62-65","66-69","70-73","74-77",
               "78-81","82 and +")
@@ -174,7 +169,8 @@ levels(SHARE2DPLOTS$Age_Groups)[7]<-"74-77"
 levels(SHARE2DPLOTS$Age_Groups)[8]<-"78-81"
 levels(SHARE2DPLOTS$Age_Groups)[9]<-"82+"
 
-write.table(SHARE2DPLOTS,"DepressionMACROExposuresbyperiod.xls",sep=" ")
+ #   this is to get the table with the exposures and rates in the appendix                                             
+##write.table(SHARE2DPLOTS,"DepressionMACROExposuresbyperiod.xls",sep=" ")
 
 ###Period BY age plot: Figure 1 of appendix
 
@@ -190,7 +186,7 @@ ggplot(transform(SHARE2DPLOTS, Country=factor(Country,
   facet_wrap(~Country+Sex)
 
 
-##AGE PERIOD PLOTS: Figure 2 of appendix
+##AGE by PERIOD PLOT: Figure 2 of appendix
 
 
 
@@ -237,19 +233,7 @@ ggplot(transform(SHARE2DPLOTS, Country=factor(Country,
   theme_bw()+
   facet_wrap (~Country+Sex)
 
-# Set APC analysis suitable for Epi Package
-
-SHARE$Exposure<-round(SHARE$Exposure,digits=0)
-SHARE$Depressed<-round(SHARE$Depressed,digits=0)
-
-SHARE$Exposure<-as.integer(SHARE$Exposure)
-SHARE$Depressed<-as.integer(SHARE$Depressed)
-
-APCSHARE <- SHARE %>% 
-  select(Age,Period,Depressed,Exposure,Country,Sex) %>%
-  rename(A=Age,P=Period,D=Depressed,Y=Exposure)
-
-# Set APC analysis suitable for Epi Package
+# Set APC analysis suitable for Epi Package (in an  APDY structure)
 
 SHARE$Exposure<-round(SHARE$Exposure,digits=0)
 SHARE$Depressed<-round(SHARE$Depressed,digits=0)
@@ -289,7 +273,7 @@ France <- APCSHARE %>%
 
 ##MALES AND FEMALES
 
-
+# Period Major parameterization (APC, non linear cohort effects, with 2004 as the reference period)
 
 apc.Denmale <- apc.fit( subset( Denmark, Sex== "Male" ),
                           parm = "APC",
@@ -370,7 +354,13 @@ apc.Frafemale <- apc.fit( subset( France, Sex== "Female" ),
                             scale=100,
                             npar=c(A=5, P=3, C=5))
 
-
+                                                                  
+# Obtain the anovas to calculate the analysis of deviance (to get figure 3, that's why I
+# wrote the table (the allanovas.xls or "all analysis of variance file" to get the raw output) and did that part in excel. 
+#  This in R requires probably a loop or a function that I could not get quite right, but basically
+#  But it is explained in the "anovas procedure for figure 3.xls" and shown clearly                                                                
+                                                                  
+                                                                  
 anova1 <- apc.Denmale[["Anova"]]
 anova2 <- apc.Swemale[["Anova"]]
 anova3 <- apc.Germale[["Anova"]]
@@ -389,13 +379,13 @@ allanovas <- rbind(anova1,anova2,anova3,anova4,anova5,anova6,
                    anova7,anova8,anova9,anova10,anova11,anova12)
 allanovas$`Mod. dev.` <- round(allanovas$`Mod. dev.`,digits=3)
 
-
+# this is to get the raw table, which later was cleaned up in the "anovas procedure for figure 3.xls" file and then in the anovasbysex to read it in .csv file
 #write.table(allanovas,"all analyses of variance.xls",sep=" ")
 
 library(readr)
-#anovasbysex <- read_table2("C:/Users/obramajo/Desktop/Tesis Bramajo/SHARE DEPRESSION/anovasbysex.txt")
+#anovasbysex <- read_table2("C:/route/anovasbysex.txt")
 
-
+# we filter age because we want to plot the reduction of the other three components: Age Drift, Age Period and Age Period Cohort
 anovasbysex2 <- anovasbysex %>% 
   filter(Component!="Age")
 
@@ -411,7 +401,7 @@ ggplot(transform(anovasbysex2, Component=factor(Component,
   facet_wrap(~ Country)
 
 
-###estimating the drift
+###estimating the drift (Table 1)
 
 apc.Denmale[["Drift"]]
 apc.Denfemale[["Drift"]]
@@ -432,9 +422,7 @@ apc.Framale[["Drift"]]
 apc.Frafemale[["Drift"]]
 
 
-###acp Males and Females
-
-
+###Cohort Major Parameterization or ACP (Alternative, with 1944 Cohort as reference), for Males and Females
 
 
 acp.Denmale <- apc.fit( subset( Denmark, Sex== "Male" ),
@@ -525,8 +513,8 @@ acp.Frafemale <- apc.fit( subset( France, Sex== "Female" ),
 
 
 
-### APC males  reference 2004
-
+### Plot of the APC Models
+# Males 
 
 par(mfrow=c(2,3), mar=c(3,4,1,4), mgp=c(3,1,0)/1.6, las=1 )
 apc.frame( a.lab=c(50,60,70,80,85),
@@ -757,7 +745,7 @@ pc.matshade( apc.Frafemale$Per[,1], apc.Frafemale$Per[,-1],lwd=2,alpha=0.2,lty="
 pc.matshade( apc.Frafemale$Coh[,1], apc.Frafemale$Coh[,-1],lwd=2,alpha=0.2,lty="22", col="purple")
 pc.points( 2004, 1, pch=16 )
 
-###ACP  Males and Females
+###Plot of the ACP models  Males and Females
 #Males
 
 
@@ -1002,7 +990,7 @@ pc.matshade( acp.Frafemale$Coh[,1], acp.Frafemale$Coh[,-1],lwd=2,alpha=0.2,lty="
 pc.points( 1944, 1, pch=16 )
 
 
-
+# Other alternative parameterizations (AdPC and AdCP, without any linear drift, so only looking for non-linear effects. This should be similar to the Median Polish procedure)
 
 ##MALES AND FEMALES  Ad PC and Ad CP
 
@@ -1175,7 +1163,7 @@ adcp.Frafemale <- apc.fit( subset( France, Sex== "Female" ),
                           npar=c(A=5, P=3, C=5))
 
 
-### plot 2nd order effects
+### plot 2nd order (non linear only) effects
 
 
 
@@ -1658,7 +1646,7 @@ pc.points( 1944, 1, pch=16 )
 
 
 
-##Additional parameterizations: MALES AND FEMALES  Ad- PC and Ad- CP
+##Additional parameterizations: MALES AND FEMALES  Ad-P-C and Ad-C-P (only linear)
 
 
 
@@ -1829,11 +1817,11 @@ Adminuscp.Frafemale <- apc.fit( subset( France, Sex== "Female" ),
                                 npar=c(A=5, P=3, C=5))
 
 
-### plot 2nd order effects
+### plot only linear effects
 
 
 
-### Ad-PC males  reference 2004
+### Ad-P-C males  reference 2004
 
 
 par(mfrow=c(2,3), mar=c(3,4,1,4), mgp=c(3,1,0)/1.6, las=1 )
