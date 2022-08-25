@@ -245,17 +245,16 @@ APCSHARE <- SHARE %>%
   select(Age,Period,Depressed,Exposure,Country,Sex) %>%
   rename(A=Age,P=Period,D=Depressed,Y=Exposure)
 
+## this is optional to visualize and double check the summarized data again
+##SHAREALL <- SHARE  %>%
+## group_by(Country,Age,Period,Cohort)  %>% ## summarize(Exposure=mean(Exposure),
+ ##           Depressed=mean(Depressed))
 
-SHAREALL <- SHARE  %>%
-  group_by(Country,Age,Period,Cohort)  %>%
-  summarize(Exposure=mean(Exposure),
-            Depressed=mean(Depressed))
-
-ntotal <- SHAREALL %>% group_by(Country,Period) %>% 
-  summarize(n=sum(Exposure))
+##ntotal <- SHAREALL %>% group_by(Country,Period) %>% 
+ ## summarize(n=sum(Exposure))
 
 
-##Period and Cohort Major Parametrization
+##Period and Cohort Major Parametrization. We start by subsetting by country
 
 
 Denmark <- APCSHARE %>% 
